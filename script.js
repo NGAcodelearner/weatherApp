@@ -22,12 +22,40 @@ function getWeatherData(city) {
   fetch(currentWeatherUrl)
     .then((response) => response.json())
     .then((data) => displayWeatherData(data));
+
+  const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}`;
+  fetch(forecastURL)
+    .then((res) => res.json())
+    .then((data) => displayHourlyForecast(data.list));
+}
+
+function displayHourlyForecast(data) {
+  const hourlydata = data.slice(0, 8);
+  const hourlyfocastContainer = document.getElementById("hourly-forcast");
+
+  hourlydata.forEach((item) => {
+    const date = new Date(item.dt_txt);
+    const hour = date.getHours();
+    const temp = Math.round(item.main.temp - 273.15);
+    const iconCode = item.weather[0].icon;
+    const iconURL = `https://openweathermap.org/img/wn/${iconCode}.png`;
+
+    const forecastItem = document.createElement("div");
+
+    forecastItem.innerHTML = `<div class="p-2 flex flex-col justify-center items-center gap-2">
+    <p class=" font-semibold">${hour}:00</p>
+    <img src="${iconURL}" alt="icon" class="w-12 h-12" />
+    <p>${temp}°C</p>
+    </div>`;
+
+    hourlyfocastContainer.appendChild(forecastItem);
+  });
 }
 
 function displayWeatherData(data) {
   const weatherDisplay = document.createElement("div");
   weatherDisplay.className =
-    "max-w-[1440px] mt-10 bg-white shadow-lg rounded-lg";
+    "max-w-[1440px] mt-6 bg-white shadow-lg rounded-lg";
 
   weatherDisplay.innerHTML = `<div class="p-8">
   <h1 class="text-2xl font-bold mt-2">${data.name}</h1>
